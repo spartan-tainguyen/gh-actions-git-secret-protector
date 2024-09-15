@@ -41,6 +41,7 @@ jobs:
             exit 0
           else
             echo "Changelog does not contain '## [Unreleased]'. Continuing the pipeline."
+          fi
         continue-on-error: true
 
       - uses: taiki-e/create-gh-release-action@v1
