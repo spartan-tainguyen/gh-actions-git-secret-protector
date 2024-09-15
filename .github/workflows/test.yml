@@ -1,0 +1,94 @@
+---
+name: GitHub Actions Plugin Unit Test
+
+on:
+  pull_request:
+    branches:
+      - master
+    paths:
+      - action.yml
+      - Dockerfile
+      - main.sh
+      - post.sh
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Create GitHub App Token
+        uses: actions/create-github-app-token@v1
+        id: github-app-token
+        with:
+          app-id: ${{ vars.APP_ID }}
+          private-key: ${{ secrets.GH_APP_PRIVATE_KEY }}
+
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.head_ref }}
+          token: ${{ steps.github-app-token.outputs.token }}
+          # Make sure the value of GITHUB_TOKEN will not be persisted in repo's config
+          persist-credentials: false
+
+      - name: Create .gitattributes file for testing
+        run: |
+          echo "test-file.txt filter=test-filter" > .gitattributes
+
+      - name: Generate AES Key and IV using OpenSSL
+        run: |
+          # Generate a 32-byte AES key (256 bits) and a 16-byte IV (128 bits)
+          AES_KEY=$(openssl rand 32 | base64)
+          IV=$(openssl rand 16 | base64)
+
+          # Create directory for key/IV storage
+          mkdir -p .git_secret_protector/cache
+
+          # Write key and IV to JSON file
+          cat <<EOF > .git_secret_protector/cache/test-filter_key_iv.json
+          {
+            "aes_key": "$AES_KEY",
+            "iv": "$IV"
+          }
+          EOF
+
+      - name: Prepare test file
+        run: |
+          echo "This is a secret test file." > test-file.txt
+
+      - name: Modify action.yaml to use local Dockerfile
+        run: |
+          sed -i '/image:/s/: .*/: Dockerfile/' action.yml
+          git config user.email 'dummy@dummy.com'
+          git config user.name 'dummy'
+          git add .
+          git commit --allow-empty-message --message=''
+
+      - name: Run encryption in Docker container
+        run: |
+          docker build -t git-secret-protector-image .
+          docker run -v ${PWD}:/workspace \
+            --entrypoint "sh" \
+            git-secret-protector-image \
+            -c "cd /workspace && git-secret-protector encrypt-files test-filter"
+
+      - name: Verify encrypted file
+        run: |
+          if grep -q "ENCRYPTED" test-file.txt; then
+            echo "File is successfully encrypted."
+          else
+            echo "File encryption failed!" && exit 1
+          fi
+
+      - name: Run decryption using GitHub Action
+        uses: ./
+        with:
+          filter: test-filter
+
+      - name: Verify decrypted file
+        run: |
+          if grep -q "This is a secret test file." test-file.txt; then
+            echo "File is successfully decrypted."
+          else
+            echo "File decryption failed!" && exit 1
+          fi
