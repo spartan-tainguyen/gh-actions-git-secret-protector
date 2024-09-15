@@ -19,8 +19,7 @@ Include this action as a step in your workflow. Provide the required inputs for 
 
 ### Inputs
 
-- **`environment`** (required): The environment name associated with the AES key (e.g., `dev`, `prod`).
-- **`aes-key`** (required): The AES key used for decryption. Store this securely, such as in GitHub Secrets.
+- **`filter`** (required):The filter name to use with git-secret-protector (e.g., `sample-filter-dev`, `sample-filter-prod`).
 
 ### Example Workflow
 
@@ -43,7 +42,7 @@ jobs:
       - name: Decrypt Secrets
         uses: c0x12c/gh-actions-git-secret-protector@v1
         with:
-          filter: 'app-dev'
+          filter: 'sample-filter-dev'
 
       # Add steps that require the decrypted secrets here
       - name: Your Build Step
