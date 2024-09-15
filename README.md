@@ -41,7 +41,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Decrypt Secrets
-        uses: c0x12c/git-secret-protector@v1
+        uses: c0x12c/gh-actions-git-secret-protector@v1
         with:
           filter: 'app-dev'
 
