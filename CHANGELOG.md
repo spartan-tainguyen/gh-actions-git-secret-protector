@@ -6,6 +6,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 **Note**: Ensure to keep this changelog updated with every new release or change made to the project.
 
+## [v1.0.6] - 2024-09-17
+
+### Added
+- Support stripped tags.
+
 ## [v1.0.5] - 2024-09-17
 
 ### Added
