@@ -16,3 +16,8 @@ if test -f "package.json"; then
 fi
 
 $SEMTAG final -s $ACTION -v "$RELEASE_VERSION"
+
+STRIPPED_PATCH_VERSION="${RELEASE_VERSION%.*}"
+
+git tag -f "$STRIPPED_PATCH_VERSION" "$RELEASE_VERSION"
+git push origin "$STRIPPED_PATCH_VERSION" --force
