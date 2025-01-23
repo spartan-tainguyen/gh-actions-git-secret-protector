@@ -1,6 +1,6 @@
-name: 'Git Secret Protector Action'
+name: 'Git Secret Protector Action (test patches)'
 description: 'Decrypts secrets in a protected repository using git-secret-protector.'
-author: 'Duc Duong <duc.duong@c0x12c.com>'
+author: 'Duc Duong <tai.nguyen@c0x12c.com>'
 
 branding:
   icon: unlock
