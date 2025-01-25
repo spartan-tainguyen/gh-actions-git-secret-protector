@@ -1,0 +1,2 @@
+- name: Git Secret Protector Action (test patches)
+  uses: spartan-tainguyen/gh-actions-git-secret-protector@v1.2.0
